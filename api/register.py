@@ -1,3 +1,4 @@
+# api/register.py
 import os
 import json
 import psycopg2
@@ -20,14 +21,13 @@ def handler(request):
             """
         }
 
-    # ✅ POST requests for API
+    # ✅ Handle POST request for registration
     if request.method == "POST":
         try:
-            # For form submission via browser
+            # Check if request is JSON or form submission
             if "application/json" in request.headers.get("Content-Type", ""):
                 data = json.loads(request.body)
             else:
-                # Parse form-encoded data
                 from urllib.parse import parse_qs
                 data = parse_qs(request.body)
                 data = {k: v[0] for k, v in data.items()}
@@ -47,7 +47,7 @@ def handler(request):
             conn = psycopg2.connect(os.environ["DATABASE_URL"])
             cur = conn.cursor()
 
-            # Create table if not exists
+            # Create table if it doesn't exist
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
@@ -56,7 +56,7 @@ def handler(request):
                 )
             """)
 
-            # Insert user
+            # Insert new user
             cur.execute(
                 "INSERT INTO users (username, password) VALUES (%s, %s)",
                 (username, hashed_password)
@@ -78,5 +78,5 @@ def handler(request):
                 "body": f"<h2>Error: {str(e)}</h2>"
             }
 
-    # Any other method
+    # Any other HTTP method
     return {"statusCode": 405, "body": "Method not allowed"}
