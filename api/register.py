@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash
 
 def handler(request):
 
+    # Only POST requests allowed
     if request.method != "POST":
         return {
             "statusCode": 405,
@@ -12,6 +13,7 @@ def handler(request):
         }
 
     try:
+        # Parse request body
         data = json.loads(request.body)
         username = data.get("username")
         password = data.get("password")
@@ -22,11 +24,14 @@ def handler(request):
                 "body": json.dumps({"error": "Missing fields"})
             }
 
+        # Hash password
         hashed_password = generate_password_hash(password)
 
+        # Connect to PostgreSQL
         conn = psycopg2.connect(os.environ["DATABASE_URL"])
         cur = conn.cursor()
 
+        # Create table if it doesn't exist
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -35,6 +40,7 @@ def handler(request):
             )
         """)
 
+        # Insert user
         cur.execute(
             "INSERT INTO users (username, password) VALUES (%s, %s)",
             (username, hashed_password)
