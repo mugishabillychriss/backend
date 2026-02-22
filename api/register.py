@@ -79,4 +79,8 @@ def handler(request):
             }
 
     # Any other HTTP method
+<<<<<<< HEAD
     return {"statusCode": 405, "body": "Method not allowed"}
+=======
+    return {"statusCode": 405, "body": "Method not allowed"}
+>>>>>>> 00676e3c7fc68395b2749d01de8d3fc6355ba61a
